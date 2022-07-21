@@ -1,0 +1,22 @@
+$vmlist=Get-AzVM
+
+#Saving location of the current path
+$locallocation=(pwd)
+#Creation of new folder to save the report.
+mkdir "$locallocation/AzureReport"
+cd $locallocation/AzureReport
+$locallocation=(pwd)
+
+#Saving VM information in a CSV file
+Get-AzVM | Export-Csv AzureReport.csv -NoTypeInformation
+
+#Import VM list in variable
+$vmlist = Import-Csv -Path "$locallocation/AzureReport.csv"
+
+foreach ($vmc in $vmlist){
+	$vm = $vmc.Name
+	$rgName = $vmc.ResourceGroupName
+    #Checking list of VM and Encryption Status
+    $Enc=(Get-AzVmDiskEncryptionStatus -ResourceGroupName $rgName -VMName $vm)
+    Write-Host $vm $Enc.OsVolumeEncrypted $Enc.DataVolumesEncrypted
+    }
